@@ -1,0 +1,2787 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Grade 12 TVL ICT Off-Campus Based Activity</title>
+
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Bootstrap Icons -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+    <!-- Leaflet -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+
+    <style>
+
+        /* ==================================================
+           ROOT VARIABLES
+        ================================================== */
+
+        :root {
+
+            --bg-color: #f6f6f6;
+
+            --text-color: #222222;
+
+            --card-color: #ffffff;
+
+            --secondary-text: #777777;
+
+            --border-color: #eeeeee;
+
+        }
+
+
+        body.dark-mode {
+
+            --bg-color: #121212;
+
+            --text-color: #f5f5f5;
+
+            --card-color: #1e1e1e;
+
+            --secondary-text: #bdbdbd;
+
+            --border-color: #333333;
+
+        }
+
+
+        /* ==================================================
+           GENERAL
+        ================================================== */
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+
+        body {
+
+            margin: 0;
+
+            padding: 0;
+
+            background-color: var(--bg-color);
+
+            color: var(--text-color);
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            transition:
+                background-color .3s ease,
+                color .3s ease;
+
+        }
+
+
+        a {
+            text-decoration: none;
+        }
+
+
+        /* ==================================================
+           PAGE CONTENT ZOOM
+        ================================================== */
+
+        #page-content {
+
+            opacity: 0;
+
+            transform: scale(.90);
+
+            transform-origin: center center;
+
+            transition:
+                opacity .8s ease,
+                transform .8s ease;
+
+        }
+
+
+        #page-content.loaded {
+
+            opacity: 1;
+
+            transform: scale(1);
+
+        }
+.custom-navbar {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    z-index: 1500;
+
+    background: var(--card-color);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.06);
+
+    transition:
+        background-color 0.3s ease,
+        border-color 0.3s ease;
+}
+
+.custom-navbar .container {
+    display: flex;
+    align-items: center;
+}
+
+.custom-navbar .navbar-brand {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-color);
+    letter-spacing: 0.5px;
+}
+
+/* Push navigation to the upper-right */
+.custom-navbar .navbar-collapse {
+    justify-content: flex-end;
+}
+
+.custom-navbar .navbar-nav {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+}
+
+.custom-navbar .nav-link {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 10px 18px;
+
+    color: var(--secondary-text);
+    font-weight: 600;
+
+    border-radius: 8px;
+
+    transition:
+        color 0.25s ease,
+        background-color 0.25s ease;
+}
+
+.custom-navbar .nav-link:hover {
+    color: var(--text-color);
+    background: rgba(128, 128, 128, 0.10);
+}
+
+.custom-navbar .nav-link.active {
+    color: var(--text-color);
+}
+
+.custom-navbar .nav-link.active::after {
+    content: "";
+
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 3px;
+
+    height: 2px;
+
+    background: var(--text-color);
+    border-radius: 10px;
+}
+
+/* Mobile */
+.custom-navbar .navbar-toggler {
+    border: none;
+    color: var(--text-color);
+    font-size: 1.5rem;
+    padding: 5px 8px;
+}
+
+.custom-navbar .navbar-toggler:focus {
+    box-shadow: none;
+}
+
+@media (max-width: 991px) {
+
+    .custom-navbar .navbar-collapse {
+        padding: 15px 0;
+    }
+
+    .custom-navbar .navbar-nav {
+        gap: 5px;
+        margin-left: 0;
+    }
+
+    .custom-navbar .nav-link {
+        padding: 12px 15px;
+    }
+
+    .custom-navbar .nav-link.active::after {
+        display: none;
+    }
+}
+        /* ==================================================
+           LOADING SCREEN
+        ================================================== */
+
+        #loading-screen {
+
+            position: fixed;
+
+            inset: 0;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            background: #ffffff;
+
+            z-index: 9999;
+
+            opacity: 1;
+
+            visibility: visible;
+
+            transition:
+                opacity .6s ease,
+                visibility .6s ease;
+
+        }
+
+
+        #loading-screen.hide {
+
+            opacity: 0;
+
+            visibility: hidden;
+
+        }
+
+
+        .loader {
+
+            width: 55px;
+
+            height: 55px;
+
+            border: 5px solid #e5e5e5;
+
+            border-top: 5px solid #212529;
+
+            border-radius: 50%;
+
+            animation:
+                buffering .8s linear infinite;
+
+        }
+
+
+        @keyframes buffering {
+
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+
+        }
+
+
+        /* ==================================================
+           DOUBLE DOOR TRANSITION
+        ================================================== */
+
+        #door-transition {
+
+            position: fixed;
+
+            inset: 0;
+
+            display: flex;
+
+            z-index: 9998;
+
+            pointer-events: none;
+
+            overflow: hidden;
+
+        }
+
+
+        .door {
+
+            width: 50%;
+
+            height: 100%;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,.08),
+                    transparent 15%,
+                    transparent 85%,
+                    rgba(0,0,0,.25)
+                ),
+                #212529;
+
+            box-shadow:
+                inset 0 0 50px rgba(0,0,0,.45);
+
+            transition:
+                transform 1.4s
+                cubic-bezier(.77,0,.18,1);
+
+        }
+
+
+        .door-left {
+
+            transform: translateX(0);
+
+            border-right:
+                2px solid
+                rgba(255,255,255,.12);
+
+        }
+
+
+        .door-right {
+
+            transform: translateX(0);
+
+            border-left:
+                2px solid
+                rgba(255,255,255,.12);
+
+        }
+
+
+        #door-transition.open .door-left {
+
+            transform:
+                translateX(-100%);
+
+        }
+
+
+        #door-transition.open .door-right {
+
+            transform:
+                translateX(100%);
+
+        }
+
+
+        /* ==================================================
+           HERO
+        ================================================== */
+
+        .hero {
+
+            min-height: 100vh;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 80px 20px;
+
+            text-align: center;
+
+        }
+
+
+        .hero-content {
+
+            width: 100%;
+
+            max-width: 900px;
+
+            margin: auto;
+
+        }
+
+
+        .hero h1 {
+
+            font-size:
+                clamp(
+                    2rem,
+                    5vw,
+                    4rem
+                );
+
+            font-weight: 800;
+
+            line-height: 1.1;
+
+            margin-bottom: 25px;
+
+        }
+
+
+        .hero p {
+
+            font-size: 1.05rem;
+
+            line-height: 1.8;
+
+            color:
+                var(--secondary-text);
+
+            max-width: 820px;
+
+            margin:
+                0 auto 15px;
+
+        }
+
+
+        .hero small {
+
+            color:
+                var(--secondary-text);
+
+        }
+
+
+        /* ==================================================
+           TYPING CURSOR
+        ================================================== */
+
+        .typing-cursor {
+
+            display: inline-block;
+
+            width: 2px;
+
+            height: 1em;
+
+            margin-left: 3px;
+
+            background:
+                currentColor;
+
+            vertical-align: middle;
+
+            animation:
+                cursorBlink .7s step-end infinite;
+
+        }
+
+
+        @keyframes cursorBlink {
+
+            0%,
+            50% {
+                opacity: 1;
+            }
+
+            51%,
+            100% {
+                opacity: 0;
+            }
+
+        }
+
+
+        /* ==================================================
+           GENERAL SECTION
+        ================================================== */
+
+        .section {
+
+            padding: 80px 20px;
+
+        }
+
+
+        .section-title {
+
+            font-size: 2.2rem;
+
+            font-weight: 800;
+
+            margin-bottom: 15px;
+
+            text-align: center;
+
+        }
+
+
+        .section-description {
+
+            max-width: 700px;
+
+            margin:
+                0 auto 45px;
+
+            text-align: center;
+
+            line-height: 1.7;
+
+            color:
+                var(--secondary-text);
+
+        }
+
+
+        /* ==================================================
+           WEBSITE CARDS
+        ================================================== */
+
+        .website-card {
+
+            height: 100%;
+
+            padding: 25px;
+
+            text-align: center;
+
+            background:
+                var(--card-color);
+
+            color:
+                var(--text-color);
+
+            border:
+                1px solid
+                var(--border-color);
+
+            border-radius: 20px;
+
+            box-shadow:
+                0 5px 20px
+                rgba(0,0,0,.07);
+
+            transition:
+                transform .3s ease,
+                box-shadow .3s ease,
+                background-color .3s ease;
+
+        }
+
+
+        .website-card:hover {
+
+            transform:
+                translateY(-8px);
+
+            box-shadow:
+                0 15px 35px
+                rgba(0,0,0,.12);
+
+        }
+
+
+        .website-icon {
+
+            width: 110px;
+
+            height: 110px;
+
+            margin:
+                0 auto 20px;
+
+            border-radius: 50%;
+
+            overflow: hidden;
+
+            background: #eeeeee;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+        }
+
+
+        .website-image {
+
+            width: 100%;
+
+            height: 100%;
+
+            object-fit: cover;
+
+        }
+
+
+        .website-name {
+
+            font-size: 1.2rem;
+
+            font-weight: 700;
+
+            margin-bottom: 12px;
+
+        }
+
+
+        .website-description {
+
+            min-height: 75px;
+
+            font-size: .95rem;
+
+            line-height: 1.6;
+
+            color:
+                var(--secondary-text);
+
+        }
+
+
+        /* ==================================================
+           CARD ACTIONS
+        ================================================== */
+
+        .card-actions {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 15px;
+
+            margin-top: 20px;
+
+            padding-top: 15px;
+
+            border-top:
+                1px solid
+                var(--border-color);
+
+        }
+
+
+        .icon-action {
+
+            border: none;
+
+            background: transparent;
+
+            color:
+                var(--secondary-text);
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 5px;
+
+            cursor: pointer;
+
+            font-size: 15px;
+
+            transition:
+                transform .2s ease,
+                color .2s ease;
+
+        }
+
+
+        .icon-action:hover {
+
+            transform:
+                scale(1.1);
+
+        }
+
+
+        .like-action.liked {
+
+            color: #dc3545;
+
+        }
+
+
+        .view-action:hover {
+
+            color: #0d6efd;
+
+        }
+
+
+        /* ==================================================
+           CARD FADE IN
+        ================================================== */
+
+        .fade-in-card {
+
+            opacity: 0;
+
+            transform:
+                translateY(40px);
+
+            transition:
+                opacity .8s ease,
+                transform .8s ease;
+
+        }
+
+
+        .fade-in-card.show {
+
+            opacity: 1;
+
+            transform:
+                translateY(0);
+
+        }
+
+
+        /* ==================================================
+           MAP SECTION
+        ================================================== */
+
+        .map-section {
+
+            padding: 80px 20px;
+
+            background:
+                var(--bg-color);
+
+        }
+
+
+        .map-description {
+
+            max-width: 700px;
+
+            margin:
+                0 auto 30px;
+
+            text-align: center;
+
+            line-height: 1.7;
+
+            color:
+                var(--secondary-text);
+
+        }
+
+
+        .map-container {
+
+            width: 100%;
+
+            height: 500px;
+
+            overflow: hidden;
+
+            border-radius: 20px;
+
+            border:
+                1px solid
+                var(--border-color);
+
+            box-shadow:
+                0 5px 25px
+                rgba(0,0,0,.12);
+
+        }
+
+
+        #activity-map {
+
+            width: 100%;
+
+            height: 100%;
+
+        }
+
+
+        /* ==================================================
+           DESTINATION CARDS
+        ================================================== */
+
+        .destination-card {
+
+            height: 100%;
+
+            padding: 30px;
+
+            background:
+                var(--card-color);
+
+            color:
+                var(--text-color);
+
+            border:
+                1px solid
+                var(--border-color);
+
+            border-radius: 18px;
+
+            box-shadow:
+                0 4px 15px
+                rgba(0,0,0,.06);
+
+            transition:
+                transform .25s ease,
+                box-shadow .25s ease;
+
+        }
+
+
+        .destination-card:hover {
+
+            transform:
+                translateY(-5px);
+
+            box-shadow:
+                0 10px 25px
+                rgba(0,0,0,.12);
+
+        }
+
+
+        .destination-icon {
+
+            font-size: 32px;
+
+            margin-bottom: 12px;
+
+        }
+
+
+        .destination-card h4 {
+
+            font-weight: 700;
+
+            margin-bottom: 8px;
+
+        }
+
+
+        .destination-card p {
+
+            color:
+                var(--secondary-text);
+
+            line-height: 1.6;
+
+        }
+
+
+        .destination-button {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            margin-top: 10px;
+
+            padding: 9px 16px;
+
+            background:
+                #212529;
+
+            color:
+                #ffffff;
+
+            border-radius: 8px;
+
+            font-size: 14px;
+
+            transition:
+                transform .2s ease,
+                opacity .2s ease;
+
+        }
+
+
+        .destination-button:hover {
+
+            color: #ffffff;
+
+            transform:
+                translateY(-2px);
+
+            opacity: .85;
+
+        }
+
+
+        /* ==================================================
+           CUSTOM MUSEUM Y MARKER
+        ================================================== */
+
+        .custom-map-marker {
+
+            background: transparent;
+
+            border: none;
+
+        }
+
+
+        .museum-marker {
+
+            width: 40px;
+
+            height: 40px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border-radius: 50%;
+
+            background:
+                #212529;
+
+            color:
+                #ffffff;
+
+            font-size: 20px;
+
+            box-shadow:
+                0 3px 10px
+                rgba(0,0,0,.3);
+
+        }
+
+
+        /* ==================================================
+           MAP POPUP
+        ================================================== */
+
+        .map-popup h5 {
+
+            margin-bottom: 5px;
+
+            font-weight: 700;
+
+        }
+
+
+        .map-popup p {
+
+            margin-bottom: 10px;
+
+        }
+
+
+        .map-popup a {
+
+            color:
+                #0d6efd;
+
+            font-weight: 600;
+
+        }
+
+
+        /* ==================================================
+           FOOTER
+        ================================================== */
+
+        footer {
+
+            padding: 40px 20px;
+
+            text-align: center;
+
+            background:
+                var(--card-color);
+
+            border-top:
+                1px solid
+                var(--border-color);
+
+            color:
+                var(--secondary-text);
+
+        }
+
+
+        /* ==================================================
+           FLOATING BUTTONS
+        ================================================== */
+
+        .floating-buttons {
+
+            position: fixed;
+
+            right: 25px;
+
+            bottom: 25px;
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 12px;
+
+            z-index: 2000;
+
+        }
+
+
+        .floating-button {
+
+            width: 50px;
+
+            height: 50px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border: none;
+
+            border-radius: 50%;
+
+            font-size: 20px;
+
+            text-decoration: none;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 4px 15px
+                rgba(0,0,0,.20);
+
+            transition:
+                transform .3s ease,
+                box-shadow .3s ease;
+
+        }
+
+
+        .floating-button:hover {
+
+            transform:
+                scale(1.10);
+
+            box-shadow:
+                0 7px 20px
+                rgba(0,0,0,.25);
+
+        }
+
+
+        .visit-page-button {
+
+            background:
+                #212529;
+
+            color:
+                #ffffff;
+
+        }
+
+
+        .messenger-button {
+
+            background:
+                #0084ff;
+
+            color:
+                #ffffff;
+
+        }
+
+
+        .theme-toggle {
+
+            background:
+                var(--card-color);
+
+            color:
+                var(--text-color);
+
+        }
+
+
+        /* ==================================================
+           MOBILE
+        ================================================== */
+
+        @media (max-width: 768px) {
+
+            .map-container {
+
+                height: 400px;
+
+            }
+
+
+            .hero {
+
+                min-height: 90vh;
+
+            }
+
+        }
+
+
+        @media (max-width: 576px) {
+
+            .floating-buttons {
+
+                right: 15px;
+
+                bottom: 15px;
+
+                gap: 10px;
+
+            }
+
+
+            .floating-button {
+
+                width: 45px;
+
+                height: 45px;
+
+                font-size: 18px;
+
+            }
+
+
+            .website-card {
+
+                padding: 20px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+<!-- ==================================================
+     NAVIGATION BAR
+================================================== -->
+
+<nav class="navbar navbar-expand-lg custom-navbar">
+
+    <div class="container">
+
+        <!-- BRAND -->
+
+        <a
+            class="navbar-brand"
+            href="#home"
+        >
+            TVL ICT
+        </a>
+
+
+        <!-- MOBILE MENU BUTTON -->
+
+        <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#mainNavbar"
+            aria-controls="mainNavbar"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+        >
+
+            <i class="bi bi-list"></i>
+
+        </button>
+
+
+        <!-- NAVIGATION LINKS -->
+
+        <div
+            class="collapse navbar-collapse"
+            id="mainNavbar"
+        >
+
+            <ul class="navbar-nav mx-auto">
+
+                <li class="nav-item">
+
+                    <a
+                        class="nav-link active"
+                        href="#home"
+                    >
+                        <i class="bi bi-house"></i>
+                        Home
+                    </a>
+
+                </li>
+
+
+                <li class="nav-item">
+
+                    <a
+                        class="nav-link"
+                        href="#lists"
+                    >
+                        <i class="bi bi-grid"></i>
+                        Lists
+                    </a>
+
+                </li>
+
+
+                <li class="nav-item">
+
+                    <a
+                        class="nav-link"
+                        href="#destinations"
+                    >
+                        <i class="bi bi-map"></i>
+                        Maps
+                    </a>
+
+                </li>
+
+            </ul>
+
+        </div>
+
+    </div>
+
+</nav>
+
+    <!-- ==================================================
+         LOADING SCREEN
+    ================================================== -->
+
+    <div id="loading-screen">
+
+        <div class="loader"></div>
+
+    </div>
+
+
+    <!-- ==================================================
+         DOUBLE DOOR
+    ================================================== -->
+
+    <div id="door-transition">
+
+        <div class="door door-left"></div>
+
+        <div class="door door-right"></div>
+
+    </div>
+
+
+    <!-- ==================================================
+         PAGE CONTENT
+    ================================================== -->
+
+    <div id="page-content">
+
+
+        <!-- ==================================================
+             HERO
+        ================================================== -->
+
+        <section class="hero" id="home">
+
+            <div class="hero-content">
+
+                <div id="typing-container"></div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             STUDENT WEBSITES
+        ================================================== -->
+
+        <section class="section" id="lists">
+
+            <div class="container">
+
+                <h2 class="section-title">
+                    Student Websites
+                </h2>
+
+
+                <p class="section-description">
+
+                    Explore the websites created by Grade 12 TVL ICT
+                    students and discover how they presented their
+                    experiences, observations, and memories from
+                    their Off-Campus Activity.
+
+                </p>
+
+
+                <div
+                    id="website-container"
+                    class="row g-4"
+                ></div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             DESTINATIONS MAP
+        ================================================== -->
+
+        <section
+            class="map-section"
+            id="destinations"
+        >
+
+            <div class="container">
+
+
+                <h2 class="section-title">
+
+                    Off-Campus Destinations
+
+                </h2>
+
+
+                <p class="map-description">
+
+                    Explore the destinations visited during the
+                    Grade 12 TVL ICT Off-Campus Activity.
+                    Click the markers to learn more about
+                    each location.
+
+                </p>
+
+
+                <!-- MAP -->
+
+                <div class="map-container">
+
+                    <div id="activity-map"></div>
+
+                </div>
+
+
+                <!-- ==================================================
+                     DESTINATION CARDS
+                ================================================== -->
+
+                <div class="row g-4 mt-4">
+
+
+                    <!-- JOSE RIZAL SHRINE -->
+
+                    <div class="col-md-6 col-lg-4">
+
+                        <div class="destination-card">
+
+
+                            <div class="destination-icon">
+
+                                <i class="bi bi-geo-alt-fill"></i>
+
+                            </div>
+
+
+                            <h4>
+
+                                Jose Rizal Shrine
+
+                            </h4>
+
+
+                            <p>
+
+                                Calamba, Laguna
+
+                            </p>
+
+
+                            <p>
+
+                                A historical shrine and museum
+                                commemorating the birthplace and
+                                early life of Philippine national
+                                hero Jose Rizal.
+
+                            </p>
+
+
+                            <a
+                                href="https://www.google.com/maps/search/?api=1&query=Jose+Rizal+Shrine+Calamba+Laguna"
+                                target="_blank"
+                                class="destination-button"
+                            >
+
+                                <i class="bi bi-map"></i>
+
+                                Open in Google Maps
+
+                            </a>
+
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ==================================================
+                         MUSEUM Y
+                    ================================================== -->
+
+                    <div class="col-md-6 col-lg-4">
+
+                        <div class="destination-card">
+
+
+                            <div class="destination-icon">
+
+                                <i class="bi bi-robot"></i>
+
+                            </div>
+
+
+                            <h4>
+
+                                Museum Y
+
+                            </h4>
+
+
+                            <p>
+
+                                Cabuyao, Laguna
+
+                            </p>
+
+
+                            <p>
+
+                                An interactive museum featuring
+                                technology-driven exhibits and
+                                robotics-related attractions.
+
+                            </p>
+
+
+                            <a
+                                href="https://www.google.com/maps/search/?api=1&query=Museum+Y+Cabuyao+Laguna"
+                                target="_blank"
+                                class="destination-button"
+                            >
+
+                                <i class="bi bi-map"></i>
+
+                                Open in Google Maps
+
+                            </a>
+
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ==================================================
+                         APOLINARIO MABINI SHRINE
+                    ================================================== -->
+
+                    <div class="col-md-6 col-lg-4">
+
+                        <div class="destination-card">
+
+
+                            <div class="destination-icon">
+
+                                <i class="bi bi-geo-alt-fill"></i>
+
+                            </div>
+
+
+                            <h4>
+
+                                Apolinario Mabini Shrine and Museum
+
+                            </h4>
+
+
+                            <p>
+
+                                Tanauan City, Batangas
+
+                            </p>
+
+
+                            <p>
+
+                                A historical shrine and museum
+                                dedicated to Apolinario Mabini,
+                                an important figure in Philippine
+                                history.
+
+                            </p>
+
+
+                            <a
+                                href="https://www.google.com/maps/search/?api=1&query=Apolinario+Mabini+Shrine+Tanauan+Batangas"
+                                target="_blank"
+                                class="destination-button"
+                            >
+
+                                <i class="bi bi-map"></i>
+
+                                Open in Google Maps
+
+                            </a>
+
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             FOOTER
+        ================================================== -->
+
+        <footer>
+
+            <p class="mb-1">
+
+                Grade 12 TVL ICT
+
+            </p>
+
+
+            <small>
+
+                Off-Campus Based Activity
+
+            </small>
+
+        </footer>
+
+
+    </div>
+
+
+    <!-- ==================================================
+         FLOATING BUTTONS
+    ================================================== -->
+
+    <div class="floating-buttons">
+
+
+
+        <!-- MESSENGER -->
+
+        <a
+            href="https://www.facebook.com/profile.php?id=61579997294296"
+            target="_blank"
+            class="floating-button messenger-button"
+            title="Messenger"
+        >
+
+            <i class="bi bi-messenger"></i>
+
+        </a>
+
+
+        <!-- DARK MODE -->
+
+        <button
+            id="theme-toggle"
+            class="floating-button theme-toggle"
+            title="Toggle dark mode"
+        >
+
+            <i class="bi bi-moon-fill"></i>
+
+        </button>
+
+
+    </div>
+
+
+    <!-- ==================================================
+         BOOTSTRAP JS
+    ================================================== -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+
+    <!-- ==================================================
+         LEAFLET JS
+    ================================================== -->
+
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+    </script>
+
+
+    <script>
+
+
+        /* ==================================================
+           WEBSITE DATA
+        ================================================== */
+
+
+const websites = [
+
+    {
+        id: "group1",
+
+        name: "Group 1 (Skillfulness)",
+
+        category: "skillfulness",
+
+        image: "images/skillfulness.jpg",
+
+        description:
+            "Members: <br>Amable <br>Deterala <br>Delgado <br>Villaseñor <br>Taala <br>Gutierrez <br>Abang <br>Vivas",
+
+        url:
+            "https://amablejake-jpg.github.io/Rizal-Shrine2/"
+
+    },
+
+
+    {
+        id: "group2",
+
+        name: "Group 2 (Skillfulness)",
+
+        category: "skillfulness",
+
+        image: "images/skillfulness.jpg",
+
+        description:
+            "Members: <br>Cruzada <br>Rendon <br>Ashta <br>Pangilagan <br>Herbosa <br>Lampos <br>Siabo",
+
+        url:
+            "https://marcdomingo763-eng.github.io/Comprog-ft/"
+
+    },
+
+
+    {
+        id: "group3",
+
+        name: "Group 3",
+
+        category: "skillfulness",
+
+        image: "images/skillfulness.jpg",
+
+        description:
+            "Members: <br>Rodriguez <br>Samonte <br>Tagactac <br>Domingo <br>Magtibay <br>Perez <br>Esmilla <br>Villanueva",
+
+        url:
+            "https://marcdomingo763-eng.github.io/Comprog-ft/"
+
+    },
+
+
+    {
+        id: "group4",
+
+        name: "Group 4",
+
+        category: "skillfulness",
+
+        image: "images/skillfulness.jpg",
+
+        description:
+            "Members: <br>Alamazan <br>Mercado <br>Castillo <br>Tolentino <br>Glorioso <br>Verano <br>Alfonso",
+
+        url:
+            "https://www.w3schools.com/"
+
+    },
+
+
+    {
+        id: "g1",
+
+        name: "Group 1 (Stability)",
+
+        category: "stability",
+
+        image: "images/stability.jpg",
+
+        description:
+            "Members: <br>Ario <br>Canilan <br>Conteres <br>Escasura <br>Liberato <br>Percal <br>Dela Cruz",
+
+        url:
+            "https://rizzal-group-1.netlify.app"
+
+    },
+
+
+    {
+        id: "g2",
+
+        name: "Group 2 (Stability)",
+
+        category: "stability",
+
+        image: "images/stability.jpg",
+
+        description:
+            "Members: <br>Belarmino <br>Castillo <br>Esmilla <br>Geneciran <br>Natanauan <br>Gonzaga <br>Lacar",
+
+        url:
+            "https://group2bybelarmino.netlify.app"
+
+    },
+
+
+    {
+        id: "g3",
+
+        name: "Group 3 (Stability)",
+
+        category: "stability",
+
+        image: "images/stability.jpg",
+
+        description:
+            "Members: <br>Gibaga <br>Tamosa <br>Franche <br>Bola <br>Lim <br>Olfindo",
+
+        url:
+            "https://effervescent-biscotti-19b9d4.netlify.app"
+
+    },
+
+
+    {
+        id: "g4",
+
+        name: "Group 4 (Stability)",
+
+        category: "stability",
+
+        image: "images/stability.jpg",
+
+        description:
+            "Members: <br>Gaffud <br>Batayon <br>Realon <br>Franz <br>Rincer <br>Daleon <br>Arbo",
+
+        url:
+            "https://group2-stability.netlify.app/"
+
+    }
+
+];
+
+
+        /* ==================================================
+           CREATE WEBSITE CARD
+        ================================================== */
+
+        function createWebsiteCard(website) {
+
+            return `
+
+                <div class="col-md-6 col-lg-3 fade-in-card">
+
+                    <div class="website-card">
+
+
+                        <div class="website-icon">
+
+                            <img
+                                src="${website.image}"
+                                alt="${website.name} logo"
+                                class="website-image"
+                            >
+
+                        </div>
+
+
+                        <div class="website-name">
+
+                            ${website.name}
+
+                        </div>
+
+
+                        <p class="website-description">
+
+                            ${website.description}
+
+                        </p>
+
+
+                        <div class="card-actions">
+
+
+                            <!-- LIKE -->
+
+                            <button
+                                id="like-${website.id}"
+                                class="icon-action like-action"
+                                onclick="toggleLike('${website.id}')"
+                                title="Like this website"
+                            >
+
+                                <i class="bi bi-heart"></i>
+
+                                <span
+                                    id="likes-${website.id}"
+                                >
+                                    0
+                                </span>
+
+                            </button>
+
+
+                            <!-- UNIQUE USERS -->
+
+                            <span
+                                class="icon-action"
+                                title="Anonymous users"
+                            >
+
+                                <i class="bi bi-people"></i>
+
+                                <span
+                                    id="unique-${website.id}"
+                                >
+                                    0
+                                </span>
+
+                            </span>
+
+
+                            <!-- VIEWS -->
+
+                            <button
+                                class="icon-action view-action"
+                                onclick="
+                                    visitWebsite(
+                                        '${website.id}',
+                                        '${website.url}'
+                                    )
+                                "
+                                title="Visit website"
+                            >
+
+                                <i class="bi bi-eye"></i>
+
+                                <span
+                                    id="views-${website.id}"
+                                >
+                                    0
+                                </span>
+
+                            </button>
+
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+
+
+        /* ==================================================
+           LOAD WEBSITES
+        ================================================== */
+
+        function loadWebsites() {
+
+            const container =
+                document.getElementById(
+                    "website-container"
+                );
+
+
+            container.innerHTML =
+                websites
+                    .map(createWebsiteCard)
+                    .join("");
+
+
+            setupCardObserver();
+
+        }
+
+
+        /* ==================================================
+           LIKE
+        ================================================== */
+
+        function toggleLike(id) {
+
+            const button =
+                document.getElementById(
+                    `like-${id}`
+                );
+
+
+            const count =
+                document.getElementById(
+                    `likes-${id}`
+                );
+
+
+            const liked =
+                localStorage.getItem(
+                    `liked-${id}`
+                );
+
+
+            if (liked === "true") {
+
+
+                localStorage.removeItem(
+                    `liked-${id}`
+                );
+
+
+                button.classList.remove(
+                    "liked"
+                );
+
+
+                button.querySelector("i")
+                    .className =
+                    "bi bi-heart";
+
+
+                count.textContent = "0";
+
+
+            }
+
+            else {
+
+
+                localStorage.setItem(
+                    `liked-${id}`,
+                    "true"
+                );
+
+
+                button.classList.add(
+                    "liked"
+                );
+
+
+                button.querySelector("i")
+                    .className =
+                    "bi bi-heart-fill";
+
+
+                count.textContent = "1";
+
+            }
+
+        }
+
+
+        /* ==================================================
+           VISIT WEBSITE
+        ================================================== */
+
+        function visitWebsite(id, url) {
+
+            const viewElement =
+                document.getElementById(
+                    `views-${id}`
+                );
+
+
+            let currentViews =
+                parseInt(
+                    viewElement.textContent
+                ) || 0;
+
+
+            currentViews++;
+
+
+            viewElement.textContent =
+                currentViews;
+
+
+            window.open(
+                url,
+                "_blank"
+            );
+
+        }
+
+
+        /* ==================================================
+           CARD OBSERVER
+        ================================================== */
+
+        function setupCardObserver() {
+
+            const cards =
+                document.querySelectorAll(
+                    ".fade-in-card"
+                );
+
+
+            const observer =
+                new IntersectionObserver(
+
+                    function(
+                        entries,
+                        observer
+                    ) {
+
+                        entries.forEach(
+                            function(entry) {
+
+                                if (
+                                    entry.isIntersecting
+                                ) {
+
+                                    entry.target
+                                        .classList
+                                        .add("show");
+
+
+                                    observer.unobserve(
+                                        entry.target
+                                    );
+
+                                }
+
+                            }
+                        );
+
+                    },
+
+                    {
+                        threshold: 0.15
+                    }
+
+                );
+
+
+            cards.forEach(
+                function(card) {
+
+                    observer.observe(card);
+
+                }
+            );
+
+        }
+
+
+        /* ==================================================
+           TYPING ANIMATION
+        ================================================== */
+
+        const elements = [
+
+            {
+                tag: "h1",
+
+                text:
+                    "GRADE 12 TVL ICT OFF CAMPUS BASED ACTIVITY"
+
+            },
+
+
+            {
+                tag: "p",
+
+                text:
+                    "Explore the websites created by 12 TVL ICT students based on their experiences during their Off-Campus Activity. Take some time to visit their websites, learn about their experiences, and appreciate the creativity and effort they put into presenting their journey. While visiting each website, you may also like the websites you enjoyed or found interesting by clicking the Like button."
+
+            },
+
+
+            {
+                tag: "small",
+
+                text:
+                    "Likes and views are anonymous."
+
+            }
+
+        ];
+
+
+        let elementIndex = 0;
+
+        let characterIndex = 0;
+
+
+        function typeElement() {
+
+            if (
+                elementIndex >=
+                elements.length
+            ) {
+
+                loadWebsites();
+
+                return;
+
+            }
+
+
+            const data =
+                elements[elementIndex];
+
+
+            const element =
+                document.createElement(
+                    data.tag
+                );
+
+
+            document
+                .getElementById(
+                    "typing-container"
+                )
+                .appendChild(
+                    element
+                );
+
+
+            const cursor =
+                document.createElement(
+                    "span"
+                );
+
+
+            cursor.className =
+                "typing-cursor";
+
+
+            element.appendChild(
+                cursor
+            );
+
+
+            characterIndex = 0;
+
+
+            function typeCharacter() {
+
+                if (
+                    characterIndex <
+                    data.text.length
+                ) {
+
+
+                    const textNode =
+                        document.createTextNode(
+                            data.text.charAt(
+                                characterIndex
+                            )
+                        );
+
+
+                    element.insertBefore(
+                        textNode,
+                        cursor
+                    );
+
+
+                    characterIndex++;
+
+
+                    setTimeout(
+                        typeCharacter,
+
+                        data.tag === "p"
+                            ? 18
+                            : 45
+
+                    );
+
+
+                }
+
+                else {
+
+
+                    cursor.remove();
+
+
+                    elementIndex++;
+
+
+                    setTimeout(
+                        typeElement,
+                        500
+                    );
+
+                }
+
+            }
+
+
+            typeCharacter();
+
+        }
+
+
+        /* ==================================================
+           INTERACTIVE MAP
+        ================================================== */
+
+        function initializeMap() {
+
+
+            const map =
+                L.map(
+                    "activity-map"
+                );
+
+
+            /* ==================================================
+               OPENSTREETMAP
+            ================================================== */
+
+            L.tileLayer(
+
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+
+                {
+
+                    maxZoom: 19,
+
+                    attribution:
+                        "&copy; OpenStreetMap contributors"
+
+                }
+
+            ).addTo(map);
+
+
+            /* ==================================================
+               JOSE RIZAL SHRINE
+            ================================================== */
+
+            const rizalShrine =
+                L.marker(
+
+                    [
+                        14.2117,
+                        121.1654
+                    ]
+
+                )
+                .addTo(map);
+
+
+            rizalShrine.bindPopup(`
+
+                <div class="map-popup">
+
+                    <h5>
+                        Jose Rizal Shrine
+                    </h5>
+
+                    <p>
+                        Calamba, Laguna
+                    </p>
+
+                    <a
+                        href="https://www.google.com/maps/search/?api=1&query=Jose+Rizal+Shrine+Calamba+Laguna"
+                        target="_blank"
+                    >
+                        View Directions
+                    </a>
+
+                </div>
+
+            `);
+
+
+            /* ==================================================
+               MUSEUM Y CUSTOM ICON
+            ================================================== */
+
+            const museumYIcon =
+                L.divIcon({
+
+                    className:
+                        "custom-map-marker",
+
+                    html: `
+
+                        <div class="museum-marker">
+
+                            <i class="bi bi-robot"></i>
+
+                        </div>
+
+                    `,
+
+                    iconSize:
+                        [40, 40],
+
+                    iconAnchor:
+                        [20, 40],
+
+                    popupAnchor:
+                        [0, -40]
+
+                });
+
+
+            /* ==================================================
+               MUSEUM Y
+            ================================================== */
+
+            const museumY =
+                L.marker(
+
+                    [
+                        14.2398,
+                        121.11143
+                    ],
+
+                    {
+                        icon:
+                            museumYIcon
+                    }
+
+                )
+                .addTo(map);
+
+
+            museumY.bindPopup(`
+
+                <div class="map-popup">
+
+                    <h5>
+                        Museum Y
+                    </h5>
+
+                    <p>
+                        Cabuyao, Laguna
+                    </p>
+
+                    <p>
+                        Interactive museum featuring
+                        technology-driven exhibits
+                        and robotics-related attractions.
+                    </p>
+
+                    <a
+                        href="https://www.google.com/maps/search/?api=1&query=Museum+Y+Cabuyao+Laguna"
+                        target="_blank"
+                    >
+                        View Directions
+                    </a>
+
+                </div>
+
+            `);
+
+
+            /* ==================================================
+               APOLINARIO MABINI SHRINE
+            ================================================== */
+
+            const mabiniShrine =
+                L.marker(
+
+                    [
+                        14.10115,
+                        121.09948
+                    ]
+
+                )
+                .addTo(map);
+
+
+            mabiniShrine.bindPopup(`
+
+                <div class="map-popup">
+
+                    <h5>
+                        Apolinario Mabini Shrine
+                    </h5>
+
+                    <p>
+                        Tanauan City, Batangas
+                    </p>
+
+                    <a
+                        href="https://www.google.com/maps/search/?api=1&query=Apolinario+Mabini+Shrine+Tanauan+Batangas"
+                        target="_blank"
+                    >
+                        View Directions
+                    </a>
+
+                </div>
+
+            `);
+
+
+            /* ==================================================
+               GROUP THREE DESTINATIONS
+            ================================================== */
+
+            const destinations =
+                L.featureGroup([
+
+                    rizalShrine,
+
+                    museumY,
+
+                    mabiniShrine
+
+                ]);
+
+
+            /* ==================================================
+               FIT MAP TO ALL DESTINATIONS
+            ================================================== */
+
+            map.fitBounds(
+
+                destinations.getBounds(),
+
+                {
+                    padding:
+                        [60, 60]
+                }
+
+            );
+
+
+            /* ==================================================
+               RIZAL MARKER CLICK
+            ================================================== */
+
+            rizalShrine.on(
+                "click",
+                function() {
+
+                    map.setView(
+
+                        [
+                            14.2117,
+                            121.1654
+                        ],
+
+                        15
+
+                    );
+
+                }
+            );
+
+
+            /* ==================================================
+               MUSEUM Y MARKER CLICK
+            ================================================== */
+
+            museumY.on(
+                "click",
+                function() {
+
+                    map.setView(
+
+                        [
+                            14.2398,
+                            121.11143
+                        ],
+
+                        16
+
+                    );
+
+                }
+            );
+
+
+            /* ==================================================
+               MABINI MARKER CLICK
+            ================================================== */
+
+            mabiniShrine.on(
+                "click",
+                function() {
+
+                    map.setView(
+
+                        [
+                            14.10115,
+                            121.09948
+                        ],
+
+                        15
+
+                    );
+
+                }
+            );
+
+
+        }
+
+
+        /* ==================================================
+           DARK MODE
+        ================================================== */
+
+        const themeToggle =
+            document.getElementById(
+                "theme-toggle"
+            );
+
+
+        const savedTheme =
+            localStorage.getItem(
+                "theme"
+            );
+
+
+        if (
+            savedTheme === "dark"
+        ) {
+
+            document.body.classList
+                .add("dark-mode");
+
+        }
+
+
+        function updateThemeIcon() {
+
+
+            const icon =
+                themeToggle.querySelector(
+                    "i"
+                );
+
+
+            if (
+                document.body.classList
+                    .contains("dark-mode")
+            ) {
+
+                icon.className =
+                    "bi bi-sun-fill";
+
+            }
+
+            else {
+
+                icon.className =
+                    "bi bi-moon-fill";
+
+            }
+
+        }
+
+
+        updateThemeIcon();
+
+
+        themeToggle.addEventListener(
+            "click",
+            function() {
+
+
+                document.body.classList
+                    .toggle("dark-mode");
+
+
+                if (
+                    document.body.classList
+                        .contains("dark-mode")
+                ) {
+
+                    localStorage.setItem(
+                        "theme",
+                        "dark"
+                    );
+
+                }
+
+                else {
+
+                    localStorage.setItem(
+                        "theme",
+                        "light"
+                    );
+
+                }
+
+
+                updateThemeIcon();
+
+            }
+        );
+
+
+        /* ==================================================
+           PAGE LOAD SEQUENCE
+        ================================================== */
+
+        window.addEventListener(
+            "load",
+            function() {
+
+
+                const loadingScreen =
+                    document.getElementById(
+                        "loading-screen"
+                    );
+
+
+                const pageContent =
+                    document.getElementById(
+                        "page-content"
+                    );
+
+
+                const doorTransition =
+                    document.getElementById(
+                        "door-transition"
+                    );
+
+
+                /* STEP 1 */
+
+                setTimeout(
+                    function() {
+
+
+                        /* STEP 2
+                           Zoom website in
+                        */
+
+                        pageContent.classList
+                            .add("loaded");
+
+
+                        /* STEP 3
+                           Hide loading screen
+                        */
+
+                        loadingScreen.classList
+                            .add("hide");
+
+
+                        /* STEP 4
+                           Open doors
+                        */
+
+                        setTimeout(
+                            function() {
+
+
+                                doorTransition
+                                    .classList
+                                    .add("open");
+
+
+                                /* STEP 5
+                                   Start typing
+                                */
+
+                                setTimeout(
+                                    function() {
+
+                                        typeElement();
+
+                                    },
+                                    700
+                                );
+
+
+                            },
+                            400
+                        );
+
+
+                    },
+                    1200
+                );
+
+
+            }
+        );
+
+
+        /* ==================================================
+           INITIALIZE MAP
+        ================================================== */
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function() {
+
+                initializeMap();
+
+            }
+        );
+
+
+    </script>
+
+
+</body>
+
+</html>
